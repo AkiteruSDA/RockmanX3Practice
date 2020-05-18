@@ -20,12 +20,19 @@ is_config_saved:
 	sep #$20
 	// Validate category.  XBA will get the route.
 	cmp.b {num_categories}
-	beq .category_anyp
+	// beq .category_anyp
+	beq .category_hundo
 	bra .not_saved
 
 .category_anyp:
 	xba
 	cmp.b #{num_routes_anyp}
+	bcc .not_saved
+	bra .routing_ok
+	
+.category_hundo:
+	xba
+	cmp.b #{num_routes_hundo}
 	bcc .not_saved
 	bra .routing_ok
 

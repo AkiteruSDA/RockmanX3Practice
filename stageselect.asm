@@ -74,7 +74,7 @@ get_state_index_table:
 	rep #$30
 
 	// Look up category table pointer.
-	lda.l {sram_config_category}
+	lda.l {title_screen_option}
 	and.w #$00FF
 	asl
 	tax

@@ -21,10 +21,15 @@ state_bank_marker:
 // Top-level table, mapping categories to route tables.
 state_category_table:
 	dw state_route_table_anyp
+	dw state_route_table_hundo
 
 // Mid-level table for Any% category, mapping routes to index tables.
 state_route_table_anyp:
 	dw state_indexes_table_anyp
+
+// Mid-level table for 100% category, mapping routes to index tables
+state_route_table_hundo:
+	dw state_indexes_table_hundo
 
 // Index table for Any%.
 state_indexes_table_anyp:
@@ -40,6 +45,19 @@ state_indexes_table_anyp:
 	{state_index_revisit state_data_anyp_tiger, state_data_anyp_doppler4}
 	db 1  // Flag: Yes, there is a Vile stage.
 
+// Index table for 100%.
+state_indexes_table_hundo:
+	{state_index_revisit state_data_hundo_hornet, state_data_hundo_doppler1}
+	{state_index_single state_data_hundo_buffalo}
+	{state_index_single state_data_hundo_intro}
+	{state_index_revisit state_data_hundo_beetle, state_data_hundo_beetle2}
+	{state_index_revisit state_data_hundo_seahorse, state_data_hundo_doppler2}
+	{state_index_revisit state_data_hundo_catfish, state_data_hundo_doppler3}
+	{state_index_single state_data_hundo_crawfish}
+	{state_index_single state_data_hundo_vile}
+	{state_index_revisit state_data_hundo_rhino, state_data_hundo_rhino2}
+	{state_index_revisit state_data_hundo_tiger, state_data_hundo_doppler4}
+	db 1  // Flag: Yes, there is a Vile stage.
 
 // Base address for representing index table addresses.
 state_table_base:
@@ -117,3 +135,87 @@ state_data_anyp_doppler4:
 	db $E0,$00,$FC,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$DC,$00
 	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
 	db $DC,$08,$10,$01,$00,$01,$3F,$00,$35,$67,$FF,$00,$00,$00,$00,$00
+
+//
+// 100% state table, 001FA0-001FDF
+//
+state_data_hundo_intro:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$02,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $DC,$00,$10,$00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_rhino:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$07,$00
+	db $00,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $DC,$00,$10,$01,$00,$00,$09,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_buffalo:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$02,$00
+	db $00,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$40,$10,$40,$00,$00,$09,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_tiger:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$08,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$58,$12,$40,$02,$00,$51,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_beetle:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$03,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$DC,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$DA,$14,$40,$82,$00,$1B,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_seahorse:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$04,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$DA,$14,$40,$82,$00,$24,$08,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_hornet:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$00,$00,$00,$5C,$00,$00,$00
+	db $00,$00,$00,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$DA,$16,$40,$8A,$00,$00,$0A,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_catfish:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$05,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$00,$00,$00,$DC,$00,$DC,$00
+	db $00,$00,$00,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$DA,$18,$40,$8B,$00,$2D,$0B,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_crawfish:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$06,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$8E,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$00,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$FE,$1A,$40,$9B,$00,$36,$0B,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_vile:  // Crush Crawfish stage
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$09,$00
+	db $60,$00,$00,$00,$02,$00,$01,$8E,$8E,$8E,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$00,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$FE,$1C,$40,$BB,$01,$1B,$0F,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_beetle2:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$03,$00
+	db $E0,$00,$20,$00,$02,$00,$01,$8E,$8E,$8E,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$FE,$1C,$40,$BB,$01,$1B,$0F,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_rhino2:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$07,$00
+	db $E0,$00,$20,$00,$02,$00,$01,$8E,$8E,$8E,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$BE,$1E,$40,$BF,$01,$48,$0F,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_doppler1:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0A,$00
+	db $E0,$00,$20,$00,$02,$00,$01,$8E,$8E,$8E,$8E,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$FF,$20,$40,$FF,$01,$3F,$0F,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_doppler2:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0B,$00
+	db $E0,$00,$20,$00,$02,$00,$01,$8E,$8E,$8E,$8E,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00
+	db $00,$FF,$20,$40,$FF,$01,$3F,$FF,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_doppler3:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0C,$00
+	db $E0,$00,$FC,$00,$02,$00,$01,$8E,$8E,$8E,$8E,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00
+	db $00,$FF,$20,$40,$FF,$01,$3F,$FF,$30,$00,$00,$00,$00,$00,$00,$00
+state_data_hundo_doppler4:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0D,$00
+	db $E0,$00,$FC,$00,$02,$00,$01,$8E,$8E,$8E,$8E,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00
+	db $00,$FF,$20,$40,$FF,$01,$3F,$FF,$30,$00,$00,$00,$00,$00,$00,$00
