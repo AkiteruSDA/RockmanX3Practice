@@ -58,6 +58,9 @@
 {savepc}
 	{reorg $078F85}
 	lda.l {controller_1_current}
+	and.b #$10
+	bne $078FB4
+	lda.l {controller_1_current}
 	and.b #$20
 	beq $078FB4
 	bra $078FB8
@@ -66,6 +69,9 @@
 // Hold R after entering midboss door to load Byte.
 {savepc}
 	{reorg $3CC486}
+	lda.l {controller_1_current}
+	and.b #$20
+	bne $3CC4BE
 	lda.l {controller_1_current}
 	and.b #$10
 	beq $3CC4BE
