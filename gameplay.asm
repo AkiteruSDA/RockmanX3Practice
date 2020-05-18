@@ -62,3 +62,12 @@
 	beq $078FB4
 	bra $078FB8
 {loadpc}
+
+// Hold R after entering midboss door to load Byte.
+{savepc}
+	{reorg $3CC486}
+	lda.l {controller_1_current}
+	and.b #$10
+	beq $3CC4BE
+	bra $3CC4C2
+{loadpc}
