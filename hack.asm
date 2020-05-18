@@ -320,19 +320,17 @@ copyright_string:
 	db .credit_end - .credit_start, $20
 	dw $144E >> 1
 .credit_start:
-	db "BY MYRIA AND ECHOPIXEL"
+	db "BY MYRIA, ECHOPIXEL,                AND AKITERU"
 .credit_end:
 	db .version_end - .version_start, $20
-	dw $148E >> 1
+	dw $14CF >> 1
 .version_start:
-	db "2017-2019 Ver. "
+	db "2017-2020 Ver. "
 	db $30 + {version_major}, '.', $30 + {version_minor}, $30 + {version_revision}
 .version_end:
 	// Terminates sequence of VRAM strings.
 	db 0
-
 {loadpc}
-
 
 {savepc}
 	// Overwrite the copyright string pointer.
@@ -344,7 +342,6 @@ copyright_string:
 	dw initial_menu_strings
 	dw initial_menu_strings
 	dw initial_menu_strings
-
 {loadpc}
 
 {savepc}
