@@ -53,3 +53,12 @@
 	{reorg $009DD8}
 	bra $009E02
 {loadpc}
+
+// Hold L after entering midboss door to load Bit.
+{savepc}
+	{reorg $078F85}
+	lda.l {controller_1_current}
+	and.b #$20
+	beq $078FB4
+	bra $078FB8
+{loadpc}
