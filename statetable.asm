@@ -22,6 +22,7 @@ state_bank_marker:
 state_category_table:
 	dw state_route_table_anyp
 	dw state_route_table_hundo
+	dw state_route_table_lowp
 
 // Mid-level table for Any% category, mapping routes to index tables.
 state_route_table_anyp:
@@ -30,6 +31,10 @@ state_route_table_anyp:
 // Mid-level table for 100% category, mapping routes to index tables
 state_route_table_hundo:
 	dw state_indexes_table_hundo
+
+// Mid-level table for Low% category, mapping routes to index tables
+state_route_table_lowp:
+	dw state_indexes_table_lowp
 
 // Index table for Any%.
 state_indexes_table_anyp:
@@ -59,11 +64,25 @@ state_indexes_table_hundo:
 	{state_index_revisit state_data_hundo_tiger, state_data_hundo_doppler4}
 	db 1  // Flag: Yes, there is a Vile stage.
 
+// Index table for Low%.
+state_indexes_table_lowp:
+	{state_index_revisit state_data_lowp_hornet, state_data_lowp_doppler1}
+	{state_index_single state_data_lowp_buffalo}
+	{state_index_single state_data_lowp_intro}
+	{state_index_single state_data_lowp_beetle}
+	{state_index_revisit state_data_lowp_seahorse, state_data_lowp_doppler2}
+	{state_index_revisit state_data_lowp_catfish, state_data_lowp_doppler3}
+	{state_index_single state_data_lowp_crawfish}
+	{state_index_single state_data_anyp_vile} //Wrong, just a placeholder. The flag below disables it anyway
+	{state_index_single state_data_lowp_rhino}
+	{state_index_revisit state_data_lowp_tiger, state_data_lowp_doppler4}
+	db 0  // Flag: No Vile stage.
+
 // Base address for representing index table addresses.
 state_table_base:
 
 //
-// Any% state table
+// Any% state table, 001FA0-001FDF
 //
 state_data_anyp_intro:
 	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -219,3 +238,72 @@ state_data_hundo_doppler4:
 	db $E0,$00,$FC,$00,$02,$00,$01,$8E,$8E,$8E,$8E,$00,$DC,$00,$DC,$00
 	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00
 	db $00,$FF,$20,$40,$FF,$01,$3F,$FF,$30,$00,$00,$00,$00,$00,$00,$00
+
+//
+// Low% state table, 001FA0-001FDF
+//
+state_data_lowp_intro:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$02,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $DC,$00,$10,$00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_buffalo:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$02,$00
+	db $00,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $DC,$00,$10,$01,$00,$00,$09,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_seahorse:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$04,$00
+	db $00,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$24,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_rhino:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$07,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$00,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$48,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_catfish:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$05,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $00,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$2D,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_crawfish:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$06,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $DC,$00,$00,$00,$00,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$36,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_tiger:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$08,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $DC,$00,$DC,$00,$00,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$51,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_beetle:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$03,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $DC,$00,$DC,$00,$DC,$00,$00,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$1B,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_hornet:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$00
+	db $60,$00,$00,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$00,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_doppler1:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0A,$00
+	db $E0,$00,$20,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$01,$3F,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_doppler2:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0E,$01
+	db $E0,$00,$20,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$01,$3F,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_doppler3:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0C,$02
+	db $E0,$00,$20,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$01,$3F,$00,$00,$00,$00,$00,$00,$00,$00,$00
+state_data_lowp_doppler4:
+	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0D,$03
+	db $E0,$00,$20,$00,$02,$00,$01,$00,$00,$00,$00,$00,$DC,$00,$DC,$00
+	db $DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$DC,$00,$00,$00,$00,$00
+	db $00,$00,$10,$40,$00,$01,$3F,$00,$00,$00,$FF,$00,$00,$00,$00,$00

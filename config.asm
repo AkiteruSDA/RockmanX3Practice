@@ -24,6 +24,9 @@ is_config_saved:
 	beq .category_hundo
 	bra .not_saved
 
+// I think this code is for if there's a route select in the options menu.
+// For this version (low% added) there is just a title option so I'm not changing anything here right now.
+
 .category_anyp:
 	xba
 	cmp.b #{num_routes_anyp}

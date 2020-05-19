@@ -132,12 +132,15 @@ eval sram_config_extra_size 6   // adjust this as more are added
 eval sram_banks $08
 // Constants for categories and routing.
 eval category_anyp 0
-eval category_hundo 1 // change this to 1 when actual category selection implemented?
-eval num_categories 2
+eval category_hundo 1
+eval category_lowp 2
+eval num_categories 3
 eval route_anyp_default 0
 eval route_hundo_default 0
+eval route_lowp_default 0
 eval num_routes_anyp 1
 eval num_routes_hundo 1
+eval num_routes_lowp 1
 // State table index offsets for special data.
 eval state_entry_size 64
 eval index_offset_vile_flag (10 * 2) + 0
@@ -158,10 +161,24 @@ eval index_offset_vile_flag (10 * 2) + 0
 {loadpc}
 
 {savepc}
+	// Update the limits of title screen option wrapping (up).
+	{reorg $008F41}
+patch_title_option_wrap_up:
+	lda.b #{num_categories}
+{loadpc}
+
+{savepc}
+	// Update the limits of title screen option wrapping (down).
+	{reorg $008F4C}
+patch_title_option_wrap_down:
+	cmp.b #{num_categories} + 1
+{loadpc}
+
+{savepc}
 	{reorg $008ECC} // 216 diff
 	// Change where Rockman starts on the title screen, which is hardcoded.
 patch_title_rockman_default_location:
-	lda.b #$A6
+	lda.b #$96
 {loadpc}
 
 
@@ -172,7 +189,7 @@ patch_title_rockman_default_location:
 	// among those.  So a simple compare will suffice here!
 	{reorg $008FE7}
 patch_title_option_jump_table:
-	cmp.b #2
+	cmp.b #{num_categories}
 	beq $009031 // options screen
 	bra $008FF2 // game start
 {loadpc}
@@ -231,25 +248,22 @@ initial_menu_strings:
 
 	macro optionset label, attrib1, attrib2, attrib3, attrib4
 		db .option1_{label}_end - .option1_{label}_begin, {attrib1}
-		// dw $1492 >> 1
-		dw $1512 >> 1
+		dw $1492 >> 1
 	.option1_{label}_begin:
 		db "ANY`"
 	.option1_{label}_end:
 
 		db .option2_{label}_end - .option2_{label}_begin, {attrib2}
-		// dw $1512 >> 1
-		dw $1592 >> 1
+		dw $1512 >> 1
 	.option2_{label}_begin:
 		db "100`"
 	.option2_{label}_end:
 
-	// Readd once low% states added
-	//	db .option3_{label}_end - .option3_{label}_begin, {attrib3}
-	//	dw $1592 >> 1
-	//.option3_{label}_begin:
-	//	db "LOW`"
-	//.option3_{label}_end:
+		db .option3_{label}_end - .option3_{label}_begin, {attrib3}
+		dw $1592 >> 1
+	.option3_{label}_begin:
+		db "LOW`"
+	.option3_{label}_end:
 
 		db .option4_{label}_end - .option4_{label}_begin, {attrib4}
 		dw $1612 >> 1
@@ -352,12 +366,12 @@ copyright_string:
 title_screen_string_table:
 	dw option_set_1
 	dw option_set_2
-	//dw option_set_3
+	dw option_set_3
 	dw option_set_4
 
 // Y coordinates of Rockman corresponding to each option.
 title_rockman_location:
-	db $A6, $B6, $C6
+	db $96, $A6, $B6, $C6
 {loadpc}
 	
 // Start of primary data bank (2B8000-2BE1FF)
