@@ -2,6 +2,72 @@
 // Configuration hacks
 //
 
+// Macros for creating new strings.
+macro option_string label, string, vramaddr, attribute, terminator
+	{label}:
+		db {label}_end - {label}_begin, {attribute}
+		dw {vramaddr} >> 1
+	{label}_begin:
+		db {string}
+	{label}_end:
+	if {terminator}
+		db 0
+	endif
+endmacro
+
+macro option_string_pair label, string, vramaddr
+	{option_string {label}_normal, {string}, {vramaddr}, $20, 1}
+	{option_string {label}_highlighted, {string}, {vramaddr}, $28, 1}
+endmacro
+
+{savepc}
+	// Option Mode position hacks
+
+	// Do not draw borders, only draw highlighted menu headers, move SOUND MODE up
+	{reorg $86917B}
+	{option_string .key_config_normal, "KEY CONFIG", $11D6, $34, 1}
+	{reorg $86919E}
+	db $00 // Terminating the string sections immediately with these
+	{reorg $8691EF}
+	db $00
+	{reorg $86920E}
+	{option_string .key_config_highlighted, "KEY CONFIG", $11D6, $34, 1}
+	{reorg $869231}
+	db $00
+	{reorg $869282}
+	db $00
+	{reorg $8692A1}
+	{option_string .sound_mode_normal, "SOUND MODE", $1417, $34, 0}
+	{option_string .misc_normal, "MISC", $151C, $34, 1}
+	{reorg $8692C4}
+	db $00
+	{reorg $8692E3}
+	db $00
+	{reorg $869302}
+	{option_string .sound_mode_highlighted, "SOUND MODE", $1417, $34, 0}
+	{option_string .misc_highlighted, "MISC", $151C, $34, 1}
+	{reorg $869325}
+	db $00
+	{reorg $869344}
+	db $00
+
+	//Move STEREO/MONAURAL and EXIT up
+	// Stereo/Mono
+	{reorg $8693F3}
+	dw $1498 >> 1
+	{reorg $869400}
+	dw $1498 >> 1
+	{reorg $86940D}
+	dw $1498 >> 1
+	{reorg $86941A}
+	dw $1498 >> 1
+
+	// Exit
+	{reorg $8693E1}
+	dw $165C >>1
+	{reorg $8693EA}
+	dw $165C >>1
+{loadpc}
 
 // Returns whether configuration is saved in the zero flag.
 // Must be called with 16-bit A!
