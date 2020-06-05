@@ -77,3 +77,10 @@
 	beq $3CC4BE
 	bra $3CC4C2
 {loadpc}
+
+// Always allow player to exit capsule room in Doppler 3, regardless of mavs defeated.
+{savepc}
+	{reorg $39A2D5}
+	nop
+	nop
+{loadpc}
