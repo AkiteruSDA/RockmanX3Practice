@@ -84,6 +84,7 @@ eval config_bgm $7EFFC8   // unused in X2 and X3, but might as well reuse these
 eval config_se $7EFFC9    // unused in X2 and X3, but might as well reuse these
 eval config_sound $7EFFCA
 eval spc_state_shadow $7EFFFE
+eval refight_completion_flags $7E1FDA
 // Temporary storage for load process.  Overlaps game use.
 eval load_temporary_rng $7F0000
 // ROM addresses

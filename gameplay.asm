@@ -84,3 +84,47 @@
 	nop
 	nop
 {loadpc}
+
+// Do not set defeated bit for each maverick after finishing a refight.
+{savepc}
+	// Hornet
+	{reorg $39A159}
+	nop
+	nop
+	nop
+	// Buffalo
+	{reorg $03CDAA}
+	nop
+	nop
+	nop
+	// Seahorse
+	{reorg $13E9D5}
+	nop
+	nop
+	nop
+	// Tiger
+	{reorg $13E3B8}
+	nop
+	nop
+	nop
+	// Catfish
+	{reorg $13F0CC}
+	nop
+	nop
+	nop
+	// Beetle
+	{reorg $13F7CF}
+	nop
+	nop
+	nop
+	// Rhino
+	{reorg $3FEB20}
+	nop
+	nop
+	nop
+	// Crawfish
+	{reorg $03D5C1}
+	nop
+	nop
+	nop
+{loadpc}
