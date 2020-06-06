@@ -73,12 +73,18 @@ config_menu_extra_string_table:
 	db {stringid_keeprng_normal}
 	//db $00  // flush
 	// Extra option values.
-	//dw config_get_stringid_keeprng
-	//db $FF
-	//db $00  // flush
-	//db $27  // EXIT
+	db $FF
+	dw config_get_stringid_keeprng
+	db $00  // flush
+	db $27  // EXIT
 	// We return to a flush call.
 .end:
+
+config_get_stringid_keeprng:
+	lda.l {sram_config_keeprng}
+	and.b #$01
+	adc.b #{stringid_keeprng_off}
+	rts
 
 // Trampoline for calling $808162  (flush string draw buffer?)
 trampoline_808162:
