@@ -2,23 +2,136 @@
 // Configuration hacks
 //
 
-// Macros for creating new strings.
-macro option_string label, string, vramaddr, attribute, terminator
-	{label}:
-		db {label}_end - {label}_begin, {attribute}
-		dw {vramaddr} >> 1
-	{label}_begin:
-		db {string}
-	{label}_end:
-	if {terminator}
-		db 0
-	endif
-endmacro
+// New additions to string table.  This table has reserved entries not being used.
+{savepc}
+	{reorg {rom_bank84_string_table}}
+string_table:
+	macro stringtableentry label
+		.idcalc_{label}:
+			dw (string_{label}) & $FFFF
+		eval stringid_{label} ((string_table.idcalc_{label} - string_table) / 2) + {num_used_string_table}
+	endmacro
 
-macro option_string_pair label, string, vramaddr
-	{option_string {label}_normal, {string}, {vramaddr}, $20, 1}
-	{option_string {label}_highlighted, {string}, {vramaddr}, $28, 1}
-endmacro
+	{stringtableentry keeprng_normal}
+	{stringtableentry keeprng_highlighted}
+	{stringtableentry keeprng_off}
+	{stringtableentry keeprng_on}
+{loadpc}
+
+{savepc}
+	{reorg $80E9E4}
+	jml config_menu_start_hook
+// Hack draw_string to use our custom table.
+	{reorg $808691}
+	jmp draw_string_hack
+
+	// 480 bytes available here
+	// Putting config string shit here cause I don't wanna frig with banks too much.
+	{reorg $86FBA0}
+config_menu_start_hook:
+	// We enter with A/X/Y 8-bit and bank set to $86 (our code bank)
+	// Deleted code.  We need to do this first, or 8162 fails.
+	lda.b #7
+	tsb.w $7E00A3
+
+	ldx.b #0
+.string_loop:
+	lda.w config_menu_extra_string_table, x
+	phx
+	beq .string_flush
+	cmp.b #$FF
+	beq .special
+	jsl trampoline_808691
+	bra .string_next
+.special:
+	// Call a function
+	inx
+	clc   // having carry clear is convenient for these functions
+	jsr (config_menu_extra_string_table, x)
+	jsl trampoline_808691
+	plx
+	inx
+	inx
+	bra .special_resume
+.string_flush:
+	jsl trampoline_808162
+.string_next:
+	plx
+.special_resume:  // save 1 byte by using the extra inx here
+	inx
+	cpx.b #config_menu_extra_string_table.end - config_menu_extra_string_table
+	bne .string_loop
+
+	jml $80E9E9
+
+// Table of static strings to render at config screen load time.
+config_menu_extra_string_table:
+	// Extra call to 8162 to execute and flush the draw buffer before our first
+	// string, otherwise we end up drawing too much.
+	db $00
+	// Selectable option labels.
+	db {stringid_keeprng_normal}
+	//db $00  // flush
+	// Extra option values.
+	//dw config_get_stringid_keeprng
+	//db $FF
+	//db $00  // flush
+	//db $27  // EXIT
+	// We return to a flush call.
+.end:
+
+// Trampoline for calling $808162  (flush string draw buffer?)
+trampoline_808162:
+	pea ({rom_rtl_instruction} - 1) & 0xFFFF
+	jml $808162
+// Trampoline for calling $808691  (draw string)
+trampoline_808691:
+	pea ({rom_rtl_instruction} - 1) & 0xFFFF
+	jml $808691
+{loadpc}
+
+{savepc}
+	// Big ol block here. Big ol block
+	{reorg $80FE00}
+config_option_jump_table:
+	// These are minus one due to using RTL to jump to them.
+	dl {rom_config_button} - 1
+	dl {rom_config_button} - 1
+	dl {rom_config_button} - 1
+	dl {rom_config_button} - 1
+	dl {rom_config_button} - 1
+	dl {rom_config_button} - 1
+	dl {rom_config_stereo} - 1
+	dl {rom_config_exit} - 1
+
+draw_string_hack:
+	// This assumes that we stay in bank 80.
+	// Overwritten code
+	sep #$30
+	sta.b $02
+	and.b #$7F    // might change this if we need more than 127 strings
+	asl
+	tay
+	// Is this one of our extra strings?
+	cpy.b #{num_used_string_table} * 2
+	bcc .old_table
+	// Switch to the other bank.
+	phb
+	pea ({rom_bank84_string_table} >> 16) * $0101
+	plb
+	plb
+	// Refer to the new table instead.
+	lda {rom_bank84_string_table} - ({num_used_string_table} * 2), y
+	sta.b $10
+	lda {rom_bank84_string_table} - ({num_used_string_table} * 2) + 1, y
+	sta.b $11
+	// Return to original code.
+	plb
+	jmp $8086A3
+.old_table:
+	// Use the original code.
+	jmp $808699 + 0 // The "+ 0" was necessary to compile for some reason. bass bug?
+{loadpc}
 
 {savepc}
 	// Option Mode position hacks

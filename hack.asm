@@ -89,20 +89,24 @@ eval refight_completion_flags $7E1FDA
 eval load_temporary_rng $7F0000
 // ROM addresses
 //x3fixme eval rom_play_music $80878B
-eval rom_play_sound $01802B
-//x3fixme eval rom_rtl_instruction $808798  // last instruction of rom_play_sound
+eval rom_play_sound $81802B
+eval rom_rtl_instruction $80E9A9  // some random rtl in bank 80
 //x3fixme eval rom_rts_instruction $8087D0  // last instruction of some part of rom_play_music
 //x3fixme eval rom_nmi_after_pushes $808173
 eval rom_nmi_after_controller $088621
 eval ram_nmi_after_controller $7E2621  // RAM copy of rom_nmi_after_controller
-//x3fixme eval rom_config_loop $80EAAA
-//x3fixme eval rom_config_button $80EB55
-//x3fixme eval rom_config_stereo $80EBE8
-//x3fixme eval rom_config_bgm $80EC30
-//x3fixme eval rom_config_se $80EC74
-//x3fixme eval rom_config_exit $80ECC0
+eval rom_config_loop $80EA2F
+eval rom_config_button $80EAE4
+eval rom_config_stereo $80EB77
+eval rom_config_exit $80EBBF
 eval rom_default_config $06E0E4
+eval rom_string_table $868D9A
+eval rom_string_table_unused $868E44
+eval rom_string_table_unused $868E84
+eval rom_bank84_string_table $84FFC8  // where to put the master string table (free space in ROM)
 eval rom_level_table $069C04
+// Constants derived from ROM addresses
+eval num_used_string_table ({rom_string_table_unused} - {rom_string_table}) / 2
 // SRAM addresses for saved states
 eval sram_start $700000
 eval sram_previous_command $700200
@@ -237,6 +241,24 @@ title_cursor_moved:
 	// 640 bytes available in bank 6, an extremely-critical bank.
 	{reorg $006FD80}
 
+// Macros for creating new strings.
+macro option_string label, string, vramaddr, attribute, terminator
+	{label}:
+		db {label}_end - {label}_begin, {attribute}
+		dw {vramaddr} >> 1
+	{label}_begin:
+		db {string}
+	{label}_end:
+	if {terminator}
+		db 0
+	endif
+endmacro
+
+macro option_string_pair label, string, vramaddr
+	{option_string {label}_normal, {string}, {vramaddr}, $20, 1}
+	{option_string {label}_highlighted, {string}, {vramaddr}, $28, 1}
+endmacro
+
 initial_menu_strings:
 	// I'm too lazy to rework the compressed font, so I use this to overwrite
 	// the ` character in VRAM.  The field used for the "attribute" of the
@@ -248,31 +270,10 @@ initial_menu_strings:
 	endmacro
 
 	macro optionset label, attrib1, attrib2, attrib3, attrib4
-		db .option1_{label}_end - .option1_{label}_begin, {attrib1}
-		dw $1492 >> 1
-	.option1_{label}_begin:
-		db "ANY`"
-	.option1_{label}_end:
-
-		db .option2_{label}_end - .option2_{label}_begin, {attrib2}
-		dw $1512 >> 1
-	.option2_{label}_begin:
-		db "100`"
-	.option2_{label}_end:
-
-		db .option3_{label}_end - .option3_{label}_begin, {attrib3}
-		dw $1592 >> 1
-	.option3_{label}_begin:
-		db "LOW`"
-	.option3_{label}_end:
-
-		db .option4_{label}_end - .option4_{label}_begin, {attrib4}
-		dw $1612 >> 1
-	.option4_{label}_begin:
-		db "OPTIONS"
-	.option4_{label}_end:
-
-		db 0
+		{option_string .option1_{label}, "ANY`", $1492, {attrib1}, 0}
+		{option_string .option2_{label}, "100`", $1512, {attrib2}, 0}
+		{option_string .option3_{label}, "LOW`", $1592, {attrib3}, 0}
+		{option_string .option4_{label}, "OPTIONS", $1612, {attrib4}, 1}
 	endmacro
 
 	{tilerow $0600, 0,   0,2,3,0,0,0,2,3}
@@ -287,17 +288,12 @@ initial_menu_strings:
 	// Menu text.  I've added an extra option versus the original and moved it
 	// one tile to the left for better centering.  I also added the edition
 	// text to the top.
-	db .edition_end - .edition_begin, $28
-	dw $138E >> 1
-.edition_begin:
-	db "- Practice Edition -"
-.edition_end:
+	{option_string .edition, "- Practice Edition -", $138E, $28, 0}
 
 // Option set 1 can be overlapped with the tail of initial_menu_strings.
 option_set_1:
 	{optionset s1, $24, $20, $20, $20}
 	db 0
-
 option_set_2:
 	{optionset s2, $20, $24, $20, $20}
 	db 0
@@ -318,12 +314,9 @@ copyright_string:
 	// The original drew a space then went back and drew a copyright symbol
 	// over the space.  I don't see a need to do that - I'll draw a copyright
 	// symbol in the first place.
-	db .capcom_end - .capcom_start, $20
-	dw $128C >> 1
-.capcom_start:
-	db "@ CAPCOM CO.,LTD.1995"
-.capcom_end:
+	{option_string .capcom, "@ CAPCOM CO.,LTD.1995", $128C, $20, 0}
 	// My custom message.  The opening quotation mark is flipped.
+	// Don't use the macro for this text due to technical limitations.
 	db 1, $60
 	dw $138E >> 1
 	db '"'
@@ -332,11 +325,8 @@ copyright_string:
 .practice_start:
 	db "PRACTICE EDITION",'"'
 .practice_end:
-	db .credit_end - .credit_start, $20
-	dw $144E >> 1
-.credit_start:
-	db "BY MYRIA, ECHOPIXEL,                AND AKITERU"
-.credit_end:
+	{option_string .credit, "BY MYRIA, ECHOPIXEL,                AND AKITERU", $144E, $20, 0}
+	// Don't use the macro for this text due to technical limitations.
 	db .version_end - .version_start, $20
 	dw $14CF >> 1
 .version_start:
@@ -345,6 +335,11 @@ copyright_string:
 .version_end:
 	// Terminates sequence of VRAM strings.
 	db 0
+
+	// Extra strings added to the table.
+	{option_string_pair string_keeprng, "KEEP RNG", $158E}
+	{option_string string_keeprng_on, "ON ", $15A8, $34, 1}
+	{option_string string_keeprng_off, "OFF", $15A8, $34, 1}
 {loadpc}
 
 {savepc}
