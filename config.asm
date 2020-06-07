@@ -33,6 +33,10 @@ string_table:
 	{reorg $80EAAC}
 	lda.w config_unhighlighted_string_ids,x
 
+	// Hook the config menu to save automatically.
+	{reorg {rom_config_loop}}
+	jml config_menu_hook
+
 	// 480 bytes available here
 	// Putting config string shit here cause I don't wanna frig with banks too much.
 	{reorg $86FBA0}
@@ -113,6 +117,13 @@ config_unhighlighted_string_ids:
 	db $2F // STEREO/MONO
 	db {stringid_keeprng_normal}
 	db $2F // EXIT?? Not sure why this isn't different to stereo/mono.
+
+config_menu_hook:
+	// Save config if anything changed.
+	jsl maybe_save_config
+	// Deleted code.
+	lda.l $7EFF80
+	jml $80EA33
 {loadpc}
 
 
