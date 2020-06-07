@@ -136,15 +136,22 @@
 // The bullet spawn decision usually happens before X even starts walking during black screen.
 {savepc}
 	{reorg $859B2E}
-	jsl reinit_stage_timer
+	jsl reinit_kaiser_vals
 {loadpc}
-reinit_stage_timer:
+reinit_kaiser_vals:
 	// Deleted code
 	lda.b #$02
 	sta.b $01
+
+	// Honestly not really sure if this is called exclusively for Kaiser sigma's loading,
+	// So I'm going to check the stage and not run this if not in Doppler 4
+	lda.l {current_level}
+	cmp.b #$0D // Doppler 4
+	bne .done
 
 	lda.l {rng_value}
 	sta.l {stage_timer}
 	and.b #$03
 	sta.b $35 // Bullet type to spawn next, relative to kaiser enemy slot
+.done:
 	rtl

@@ -69,7 +69,7 @@ eval controller_1_disable $7E1F63
 eval event_flags $7E1FB2
 eval state_vars $7E1FA0
 eval state_level_already_loaded $7E1FB6
-//x3fixme eval current_level $7E1F7A
+eval current_level $7E1FAE
 //x3fixme eval life_count $7E1F80
 //x3fixme eval midpoint_flag $7E1F81
 //x3fixme eval weapon_power $7E1F85
