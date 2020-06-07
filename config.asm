@@ -21,9 +21,17 @@ string_table:
 {savepc}
 	{reorg $80E9E4}
 	jml config_menu_start_hook
-// Hack draw_string to use our custom table.
+
+	// Hack draw_string to use our custom table.
 	{reorg $808691}
 	jmp draw_string_hack
+
+	// Use our alternate table for unhighlighted string IDs.
+	//DB = 06 here, which is why config_unhighlighted_string_ids is in bank 86 (mirror)
+	{reorg $80EA8F}
+	lda.w config_unhighlighted_string_ids,x
+	{reorg $80EAAC}
+	lda.w config_unhighlighted_string_ids,x
 
 	// 480 bytes available here
 	// Putting config string shit here cause I don't wanna frig with banks too much.
@@ -94,8 +102,41 @@ trampoline_808162:
 trampoline_808691:
 	pea ({rom_rtl_instruction} - 1) & 0xFFFF
 	jml $808691
+
+config_unhighlighted_string_ids:
+	db $23 // SHOT
+	db $25 // JUMP
+	db $27 // DASH
+	db $29 // SELECT_L
+	db $2B // SELECT_R
+	db $2D // MENU
+	db $2F // STEREO/MONO
+	db {stringid_keeprng_normal}
+	db $2F // EXIT?? Not sure why this isn't different to stereo/mono.
 {loadpc}
 
+
+{savepc}
+	// Increase number of options.
+	{reorg $80EA6B}
+	lda.b #((config_option_jump_table.end - config_option_jump_table) / 3) - 1
+	{reorg $80EA73}
+	cmp.b #(config_option_jump_table.end - config_option_jump_table) / 3
+
+	// Use config_option_jump_table instead of the built-in one.
+	// Note that we can overwrite the config table.
+	{reorg $80EAD0}
+	// clc not necessary because of asl of small value
+	adc.l {config_selected_option}
+	tax
+	lda.l config_option_jump_table + 2, x
+	pha
+	rep #$20
+	lda.l config_option_jump_table + 0, x
+	pha
+	sep #$20
+	rtl
+{loadpc}
 {savepc}
 	// Big ol block here. Big ol block
 	{reorg $80FE00}
@@ -108,7 +149,69 @@ config_option_jump_table:
 	dl {rom_config_button} - 1
 	dl {rom_config_button} - 1
 	dl {rom_config_stereo} - 1
+	dl config_code_keeprng - 1
 	dl {rom_config_exit} - 1
+.end:
+
+config_code_keeprng:
+	lda.b #2
+	ldx.b #{sram_config_keeprng} - {sram_config_extra}
+	ldy.b #{stringid_keeprng_off}
+	bra config_extra_toggle
+
+// Shared routines for simple selections.
+// A = number of options available.
+// X = index into sram_config_extra.
+// Y = string ID of default (zero) option.
+config_extra_toggle:
+	// Save A to give us room to work.
+	pha
+	// Was left or right pressed?
+	lda.b {controller_1_new} + 1
+	and.b #$03
+	beq .no_change
+	cmp.b #$03
+	beq .no_change
+	// Determine left versus right.
+	lsr
+	lda.l {sram_config_extra}, x
+	bcc .left
+.right:
+	// Increment the setting.
+	inc
+	cmp 1, s
+	bcc .right_no_overflow
+	lda.b #0
+.right_no_overflow:
+	bra .left_no_underflow
+.left:
+	// Decrement the setting.
+	dec
+	bpl .left_no_underflow
+	lda 1, s
+	dec
+.left_no_underflow:
+	// Save the setting.
+	sta.l {sram_config_extra}, x
+	// Determine the string number by adding Y to A.
+	sta 1, s
+	tya
+	clc
+	adc 1, s
+.draw_string:
+	jsl trampoline_808691
+.no_change:
+	pla   // remove saved A
+	jsl trampoline_808162
+	jml {rom_config_loop}
+
+// Helper pieces of code for config routines.
+config_helpers:
+.draw_string:
+	jsl trampoline_808691
+.no_change:
+	jsl trampoline_808162
+	jml {rom_config_loop}
 
 draw_string_hack:
 	// This assumes that we stay in bank 80.
