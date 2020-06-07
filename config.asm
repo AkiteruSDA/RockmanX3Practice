@@ -205,14 +205,6 @@ config_extra_toggle:
 	jsl trampoline_808162
 	jml {rom_config_loop}
 
-// Helper pieces of code for config routines.
-config_helpers:
-.draw_string:
-	jsl trampoline_808691
-.no_change:
-	jsl trampoline_808162
-	jml {rom_config_loop}
-
 draw_string_hack:
 	// This assumes that we stay in bank 80.
 	// Overwritten code
@@ -303,42 +295,13 @@ is_config_saved:
 	bne .not_saved
 
 	// Check for bad extra configuration.
-	// Loads both route and category since A is 16-bit.
-	lda.l {sram_config_category}  // also sram_config_route
+	// These are simple Boolean flags. (only checking keeprng for now)
 	sep #$20
-	// Validate category.  XBA will get the route.
-	cmp.b {num_categories}
-	// beq .category_anyp
-	beq .category_hundo
-	bra .not_saved
-
-// I think this code is for if there's a route select in the options menu.
-// For this version (low% added) there is just a title option so I'm not changing anything here right now.
-
-.category_anyp:
-	xba
-	cmp.b #{num_routes_anyp}
-	bcc .not_saved
-	bra .routing_ok
-	
-.category_hundo:
-	xba
-	cmp.b #{num_routes_hundo}
-	bcc .not_saved
-	bra .routing_ok
-
-.routing_ok:
-	// These are simple Boolean flags.
+	lda.l {sram_config_keeprng}
+	and.b #~($01)
 	rep #$20
-	lda.l {sram_config_midpointsoff}  // also sram_config_keeprng
-	and.w #~($0101)
 	bne .not_saved
-	lda.l {sram_config_musicoff}  // also sram_config_godmode
-	and.w #~($0101)
-	beq .saved
 .not_saved:
-	rep #$22  // clear zero flag in addition to setting A = 16-bit again.
-.saved:
 	rts
 
 
