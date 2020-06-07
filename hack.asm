@@ -97,6 +97,7 @@ eval rom_rtl_instruction $80E9A9  // some random rtl in bank 80
 //x3fixme eval rom_nmi_after_pushes $808173
 eval rom_nmi_after_controller $088621
 eval ram_nmi_after_controller $7E2621  // RAM copy of rom_nmi_after_controller
+eval rom_calculate_rng $04BE35
 eval rom_config_loop $80EA2F
 eval rom_config_button $80EAE4
 eval rom_config_stereo $80EB77

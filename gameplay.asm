@@ -129,9 +129,11 @@
 	nop
 {loadpc}
 
-// Reinitialize the stage timer using RNG when Kaiser Sigma's state is changed to 02 on load (attack mode)
+// Reinitialize the stage timer and missile spawn type
+// using RNG when Kaiser Sigma's state is changed to 02 on load (attack mode)
 // to allow random patterns when loading state. This is because Kaiser Sigma uses the stage timer to
-// decide when to shoot missiles (AND #$7F against it.)
+// decide when to shoot missiles (AND #$7F against it.), and RNG to decide which bullet to spawn first.
+// The bullet spawn decision usually happens before X even starts walking during black screen.
 {savepc}
 	{reorg $859B2E}
 	jsl reinit_stage_timer
@@ -143,4 +145,6 @@ reinit_stage_timer:
 
 	lda.l {rng_value}
 	sta.l {stage_timer}
+	and.b #$03
+	sta.b $35 // Bullet type to spawn next, relative to kaiser enemy slot
 	rtl
