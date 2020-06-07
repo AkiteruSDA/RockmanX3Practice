@@ -128,3 +128,19 @@
 	nop
 	nop
 {loadpc}
+
+// Reinitialize the stage timer using RNG when Kaiser Sigma's state is changed to 02 on load (attack mode)
+// to allow random patterns when loading state. This is because Kaiser Sigma uses the stage timer to
+// decide when to shoot missiles (AND #$7F against it.)
+{savepc}
+	{reorg $859B2E}
+	jsl reinit_stage_timer
+{loadpc}
+reinit_stage_timer:
+	// Deleted code
+	lda.b #$02
+	sta.b $01
+
+	lda.l {rng_value}
+	sta.l {stage_timer}
+	rtl

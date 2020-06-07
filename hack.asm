@@ -63,6 +63,8 @@ eval screen_control_shadow $7E00B4
 eval nmi_control_shadow $7E00C3
 eval hdma_control_shadow $7E00C4
 eval rng_value $7E09D6
+eval global_timer $7E09CB // Increments every frame
+eval stage_timer $7E09CC // Increments every frame X is loaded
 eval controller_1_disable $7E1F63
 eval event_flags $7E1FB2
 eval state_vars $7E1FA0
